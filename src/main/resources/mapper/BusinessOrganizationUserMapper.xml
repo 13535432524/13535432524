@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzh.springboot.mapper.BusinessOrganizationUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.hzh.springboot.domain.BusinessOrganizationUser">
+            <id property="id" column="id" jdbcType="VARCHAR"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="VARCHAR"/>
+            <result property="passsword" column="passsword" jdbcType="VARCHAR"/>
+            <result property="username" column="username" jdbcType="VARCHAR"/>
+            <result property="organizationid" column="organizationId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,gender,
+        passsword,username,organizationId
+    </sql>
+    <select id="getUserList" resultMap="BaseResultMap" parameterType="com.hzh.springboot.common.page.Page" resultType="com.hzh.springboot.domain.BusinessOrganizationUser">
+        select <include refid="Base_Column_List"> </include>
+        from business_organization_user
+        Limit #{sPage},#{pageSize}
+    </select>
+    <select id="getDataByUsername" resultType="com.hzh.springboot.domain.BusinessOrganizationUser">
+        select <include refid="Base_Column_List"> </include>
+        from business_organization_user a
+        where a.username=#{username}
+    </select>
+</mapper>

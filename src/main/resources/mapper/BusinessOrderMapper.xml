@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hzh.springboot.mapper.BusinessOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.hzh.springboot.entity.order.BusinessOrder">
+            <id property="orderid" column="orderId" jdbcType="VARCHAR"/>
+            <result property="code" column="code" jdbcType="VARCHAR"/>
+            <result property="createDate" column="create_date" jdbcType="TIMESTAMP"/>
+            <result property="updateDate" column="update_date" jdbcType="TIMESTAMP"/>
+            <result property="organizationid" column="organizationId" jdbcType="VARCHAR"/>
+            <result property="follower" column="follower" jdbcType="VARCHAR"/>
+            <result property="finishNum" column="finish_num" jdbcType="INTEGER"/>
+            <result property="cutbedNum" column="cutbed_num" jdbcType="INTEGER"/>
+            <result property="deliverNum" column="deliver_num" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        orderId,code,create_date,
+        update_date,organizationId,follower,
+        finish_num,cutbed_num,deliver_num
+    </sql>
+
+    <select id="selectData" resultMap="BaseResultMap" parameterType="Map">
+        select <include refid="Base_Column_List"/>
+        from  business_order
+        limit #{star},#{end}
+    </select>
+
+    <update id="updateCut" parameterType="Map">
+        update business_order set cutbed_num=cutbed_num+1 where orderId=#{orderId}
+    </update>
+
+    <select id="selectBusinessOrder" resultType="java.util.Map">
+        select a.orderId,SUM(c.num) as cutting,SUM(d.num) as deliveyNum,SUM(e.num) as finishNum from business_order a
+        join business_order_detail b on a.orderId=b.orderId
+        join business_order_cuttting c on c.detailId=b.id
+        join business_order_delivery d on d.detailId=b.id
+        join business_order_finish e on e.detailId=b.id
+        where a.organizationId=1
+        group by a.orderId
+    </select>
+
+    <select id="selectBusinessOrderDetail" resultType="java.util.Map">
+        select a.orderId,b.id as detailId from business_order a
+        join business_order_detail b on a.orderId=b.orderId
+        where a.organizationId=1
+    </select>
+
+    <select id="selectBusinessOrderCutNum" resultType="java.util.Map" parameterType="Map">
+        select detailId,sum(num) as num from business_order_cuttting where detailId
+        in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item.detailId}
+        </foreach>
+        group by detailId
+    </select>
+
+    <select id="selectBusinessOrderFinishNum" resultType="java.util.Map" parameterType="Map">
+        select detailId,sum(num) as num from business_order_finish where detailId
+        in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item.detailId}
+        </foreach>
+        group by detailId
+    </select>
+
+    <select id="selectBusinessOrderDeliveryNum" resultType="java.util.Map" parameterType="Map">
+        select detailId,sum(num) as num from business_order_delivery where detailId
+        in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item.detailId}
+        </foreach>
+        group by detailId
+    </select>
+
+
+    <select id="selectOrderIdList" resultType="String" parameterType="Map">
+        select cast(orderId as  CHAR(20)) as orderId from  business_order
+        limit #{star},#{end}
+    </select>
+
+    <select id="getOrderid" resultType="String" parameterType="String">
+        select cast(orderId as  CHAR(20)) as orderId
+        from  business_order
+        where orderId=#{id}
+    </select>
+
+</mapper>
